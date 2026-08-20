@@ -305,34 +305,33 @@
         <button type="button" class="submit-btn" onclick="analyzeSaju()">사주 풀이 보기</button>
     </form>
 
-    <!-- 사주 결과 출력 영역 -->
-    <div class="result-box" id="resultBox" style="margin-top: 80px; display: none;">
-        <div class="result-title" id="resultTitle" style="margin-bottom: 30px;">사주 분석 결과</div>
-        
-        <!-- 사주팔자 4주 테이블 -->
-        <div class="saju-grid">
-            <div class="saju-cell">
-                <div class="label">시주 (時柱)</div>
-                <div class="value" id="hourPillar">-</div>
+    <!-- 결과 영역 전체를 감싸는 별도 박스 -->
+    <div id="resultWrapper" style="display: none; margin-top: 80px; background: var(--container-bg); border-radius: 16px; padding: 30px; border: 1px solid var(--result-border);">
+        <div class="result-box" id="resultBox" style="display: block; margin-top: 0; padding-top: 0; border-top: none;">
+            <div class="result-title" id="resultTitle" style="margin-bottom: 30px;">사주 분석 결과</div>
+            
+            <!-- 사주팔자 4주 테이블 -->
+            <div class="saju-grid">
+                <div class="saju-cell">
+                    <div class="label">시주 (時柱)</div>
+                    <div class="value" id="hourPillar">-</div>
+                </div>
+                <div class="saju-cell">
+                    <div class="label">일주 (日柱)</div>
+                    <div class="value" id="dayPillar">-</div>
+                </div>
+                <div class="saju-cell">
+                    <div class="label">월주 (月柱)</div>
+                    <div class="value" id="monthPillar">-</div>
+                </div>
+                <div class="saju-cell">
+                    <div class="label">년주 (年柱)</div>
+                    <div class="value" id="yearPillar">-</div>
+                </div>
             </div>
-            <div class="saju-cell">
-                <div class="label">일주 (日柱)</div>
-                <div class="value" id="dayPillar">-</div>
-            </div>
-            <div class="saju-cell">
-                <div class="label">월주 (月柱)</div>
-                <div class="value" id="monthPillar">-</div>
-            </div>
-            <div class="saju-cell">
-                <div class="label">년주 (年柱)</div>
-                <div class="value" id="yearPillar">-</div>
-            </div>
-        </div>
 
-        <!-- 풀이 텍스트 영역 -->
-        <div class="interpretation">
-            <h4>📜 종합 사주 총평</h4>
-            <p id="analysisText">입력하신 정보 기반으로 사주를 분석 중입니다...</p>
+            <!-- 풀이 텍스트 영역 -->
+            <div id="analysisText"></div>
         </div>
     </div>
 </div>
@@ -357,8 +356,9 @@
             return;
         }
 
-        // 결과 박스 로딩 표시
-        document.getElementById('resultBox').style.display = 'block';
+        // 결과 영역 전체 표시 및 로딩 상태
+        const wrapper = document.getElementById('resultWrapper');
+        wrapper.style.display = 'block';
         document.getElementById('analysisText').innerHTML = `
             <div class="spinner"></div>
             <p style="text-align: center; color: var(--text-color);">AI가 정통 명리학으로 사주를 분석 중입니다...</p>
@@ -373,16 +373,14 @@
             
             const data = await response.json();
             
-            // AI 응답을 카드 UI로 감싸기 (간단한 파싱)
+            // AI 응답을 카드 UI로 감싸기
             let rawContent = data.analysis.replace(/```html/g, '').replace(/```/g, '');
             
-            // 섹션별 아이콘 매핑
             const iconMap = {
                 "종합 사주 총평": "🔮", "초년운 및 성장기": "🌱", "중년운 (사회적 성취)": "🌳", "말년운 (재물과 안식)": "🍂", 
                 "건강 및 체질 조언": "💪", "연애운": "❤️", "결혼운": "💍", "직장 및 사업운 (재물 모으는 비법 포함)": "💼", "재물": "💰"
             };
 
-            // h4 제목을 카드 UI로 변환
             let formattedContent = rawContent.replace(/<h4>(.*?)<\/h4>/g, (match, title) => {
                 const icon = iconMap[title] || "💡";
                 return `<div class="analysis-card"><div class="analysis-title"><span>${icon}</span>${title}</div>`;
@@ -403,7 +401,7 @@
 
     // 페이지 로드 시 결과창 강제 숨김
     document.addEventListener('DOMContentLoaded', () => {
-        document.getElementById('resultBox').style.display = 'none';
+        document.getElementById('resultWrapper').style.display = 'none';
     });
 
 </script>
