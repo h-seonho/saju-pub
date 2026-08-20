@@ -342,14 +342,16 @@
             
             const data = await response.json();
             
-            // 결과 표시 (서버에서 반환된 전체 HTML 또는 텍스트)
-            document.getElementById('analysisText').innerHTML = data.analysis;
+            // 결과 표시
+            // 마크다운 코드 블록 문자가 포함되어 있을 경우 제거
+            let cleanAnalysis = data.analysis.replace(/```html/g, '').replace(/```/g, '');
+            document.getElementById('analysisText').innerHTML = cleanAnalysis;
             
-            // Pillar 정보는 실제 API 구조에 맞게 서버에서 받아오거나 여기서 처리
-            document.getElementById('yearPillar').innerText = "-";
-            document.getElementById('monthPillar').innerText = "-";
-            document.getElementById('dayPillar').innerText = "-";
-            document.getElementById('hourPillar').innerText = time;
+            // Pillar 정보 표시
+            document.getElementById('yearPillar').innerText = data.sajuPillar.year;
+            document.getElementById('monthPillar').innerText = data.sajuPillar.month;
+            document.getElementById('dayPillar').innerText = data.sajuPillar.day;
+            document.getElementById('hourPillar').innerText = data.sajuPillar.time;
 
         } catch (error) {
             document.getElementById('analysisText').innerHTML = "분석 중 오류가 발생했습니다. 다시 시도해 주세요.";
