@@ -5,6 +5,42 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI 사주 풀이 서비스</title>
     <style>
+        :root {
+            --bg-color: #0f172a;
+            --container-bg: #1e293b;
+            --text-color: #f8fafc;
+            --header-text: #f1f5f9;
+            --label-color: #cbd5e1;
+            --input-bg: #0f172a;
+            --input-border: #475569;
+            --input-text: #ffffff;
+            --result-border: #475569;
+            --cell-bg: #0f172a;
+            --cell-border: #334155;
+            --cell-label: #94a3b8;
+            --cell-value: #f1f5f9;
+            --inter-bg: #0f172a;
+            --inter-text: #e2e8f0;
+        }
+
+        body.light-mode {
+            --bg-color: #f8fafc;
+            --container-bg: #ffffff;
+            --text-color: #1e293b;
+            --header-text: #0f172a;
+            --label-color: #475569;
+            --input-bg: #ffffff;
+            --input-border: #cbd5e1;
+            --input-text: #0f172a;
+            --result-border: #cbd5e1;
+            --cell-bg: #f1f5f9;
+            --cell-border: #e2e8f0;
+            --cell-label: #64748b;
+            --cell-value: #0f172a;
+            --inter-bg: #f1f5f9;
+            --inter-text: #334155;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -13,39 +49,55 @@
         }
 
         body {
-            background-color: #0f172a;
-            color: #f8fafc;
+            background-color: var(--bg-color);
+            color: var(--text-color);
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             padding: 20px;
+            transition: background-color 0.3s, color 0.3s;
         }
 
         .container {
             width: 100%;
             max-width: 550px;
-            background: #1e293b;
+            background: var(--container-bg);
             border-radius: 16px;
             padding: 30px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            border: 1px solid #334155;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--result-border);
+            transition: background-color 0.3s;
         }
 
         .header {
             text-align: center;
             margin-bottom: 25px;
+            position: relative;
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: var(--input-border);
+            color: var(--text-color);
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8rem;
         }
 
         .header h1 {
             font-size: 1.6rem;
-            color: #f1f5f9;
+            color: var(--header-text);
             margin-bottom: 8px;
         }
 
         .header p {
             font-size: 0.9rem;
-            color: #94a3b8;
+            color: var(--label-color);
         }
 
         .form-group {
@@ -56,7 +108,7 @@
             display: block;
             font-size: 0.85rem;
             font-weight: 600;
-            color: #cbd5e1;
+            color: var(--label-color);
             margin-bottom: 6px;
         }
 
@@ -64,9 +116,9 @@
             width: 100%;
             padding: 12px;
             border-radius: 8px;
-            border: 1px solid #475569;
-            background: #0f172a;
-            color: #ffffff;
+            border: 1px solid var(--input-border);
+            background: var(--input-bg);
+            color: var(--input-text);
             font-size: 0.95rem;
             outline: none;
         }
@@ -78,10 +130,10 @@
         .radio-group {
             display: flex;
             gap: 15px;
-            background: #0f172a;
+            background: var(--input-bg);
             padding: 10px 14px;
             border-radius: 8px;
-            border: 1px solid #475569;
+            border: 1px solid var(--input-border);
         }
 
         .radio-group label {
@@ -113,7 +165,7 @@
             display: none;
             margin-top: 25px;
             padding-top: 25px;
-            border-top: 1px dashed #475569;
+            border-top: 1px dashed var(--result-border);
         }
 
         .result-title {
@@ -133,32 +185,32 @@
         }
 
         .saju-cell {
-            background: #0f172a;
-            border: 1px solid #334155;
+            background: var(--cell-bg);
+            border: 1px solid var(--cell-border);
             padding: 10px 4px;
             border-radius: 8px;
         }
 
         .saju-cell .label {
             font-size: 0.75rem;
-            color: #94a3b8;
+            color: var(--cell-label);
             margin-bottom: 4px;
         }
 
         .saju-cell .value {
             font-size: 1.1rem;
             font-weight: bold;
-            color: #f1f5f9;
+            color: var(--cell-value);
         }
 
         .interpretation {
-            background: #0f172a;
+            background: var(--inter-bg);
             padding: 16px;
             border-radius: 8px;
             border-left: 4px solid #3b82f6;
             font-size: 0.9rem;
             line-height: 1.7;
-            color: #e2e8f0;
+            color: var(--inter-text);
         }
 
         .interpretation h4 {
@@ -171,6 +223,7 @@
 
 <div class="container">
     <div class="header">
+        <button class="theme-toggle" onclick="toggleTheme()">테마 변경</button>
         <h1>🔮 AI 정통 사주 풀이</h1>
         <p>생년월일시를 입력하면 타고난 운명과 사주 명식을 분석해 드립니다.</p>
     </div>
@@ -257,7 +310,12 @@
 </div>
 
 <script>
+    function toggleTheme() {
+        document.body.classList.toggle('light-mode');
+    }
+
     // 간이 천간/지자 데이터 (예시 계산용)
+
     const heavenlyStems = ["갑(甲)", "을(乙)", "병(丙)", "정(丁)", "무(戊)", "기(己)", "경(庚)", "신(辛)", "임(壬)", "계(癸)"];
     const earthlyBranches = ["자(子)", "축(丑)", "인(寅)", "묘(卯)", "진(辰)", "사(巳)", "오(午)", "미(未)", "신(申)", "유(酉)", "술(戌)", "해(亥)"];
 
