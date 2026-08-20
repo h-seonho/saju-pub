@@ -319,84 +319,7 @@
             btn.innerText = '화이트모드';
         }
     }
-    // 정확한 간지 계산을 위한 데이터 및 함수
-    const heavenlyStems = ["갑(甲)", "을(乙)", "병(丙)", "정(丁)", "무(戊)", "기(己)", "경(庚)", "신(辛)", "임(壬)", "계(癸)"];
-    const earthlyBranches = ["자(子)", "축(丑)", "인(寅)", "묘(卯)", "진(辰)", "사(巳)", "오(午)", "미(未)", "신(申)", "유(酉)", "술(戌)", "해(亥)"];
-
-    // 1900년 1월 1일은 갑자(甲子)일 (index 0)
-    const referenceDate = new Date(1900, 0, 1);
-
-    function getGanJi(daysOffset) {
-        // 음수일 경우를 대비한 나머지 연산 보정
-        const stemIdx = ((daysOffset % 10) + 10) % 10;
-        const branchIdx = ((daysOffset % 12) + 12) % 12;
-        return {
-            stem: heavenlyStems[stemIdx],
-            branch: earthlyBranches[branchIdx]
-        };
-    }
-
-    const sajuDatabase = {
-        "갑자": {
-            "종합 사주 총평": "갑자(甲子)일주는 타고난 리더십과 지혜를 갖추고 있습니다. 시작하는 힘이 강하며 새로운 것을 개척하는 능력이 탁월합니다.",
-            "초년운": "학업에 대한 열망이 높고 일찍부터 자신의 재능을 인정받는 시기입니다.",
-            "중년운": "본격적인 사회활동을 통해 큰 성과를 거두며 재물이 쌓이는 시기입니다.",
-            "말년운": "안정적인 기반 위에서 주변의 존경을 받으며 편안하게 지내는 운입니다.",
-            "건강운": "활동적이라 체력은 좋으나 과로를 주의해야 합니다.",
-            "연애운": "감정 표현이 솔직하여 진실된 만남을 이어갑니다.",
-            "결혼운": "서로의 비전을 존중하는 파트너와 인연이 깊습니다.",
-            "어떤 사람이랑 결혼을 해야하는지": "나의 추진력을 보완해 줄 차분하고 이해심 많은 사람.",
-            "재물운": "지혜로운 투자로 재산을 증식하는 능력이 있습니다.",
-            "재물모으는법": "한 번에 큰 것보다 적립식 투자가 좋습니다.",
-            "체질운": "수(水) 기운이 강하니 냉증을 조심하세요.",
-            "사회운": "조직 내에서 핵심 인재로 성장합니다.",
-            "성격운": "솔직하고 당당하며 의리가 있습니다."
-        },
-        "default": {
-            "종합 사주 총평": "타고난 기운에 따라 조화로운 삶을 추구하는 것이 중요합니다.",
-            "초년운": "순수한 호기심으로 다양한 경험을 쌓는 시기입니다.",
-            "중년운": "자신의 목표를 향해 정진하며 안정적인 성과를 만듭니다.",
-            "말년운": "성취한 결과를 바탕으로 주변과 나누며 행복을 찾습니다.",
-            "건강운": "규칙적인 식습관과 가벼운 운동이 필요합니다.",
-            "연애운": "소소한 대화와 교감을 통해 깊은 정을 나눕니다.",
-            "결혼운": "상호 신뢰를 바탕으로 가정을 꾸립니다.",
-            "어떤 사람이랑 결혼을 해야하는지": "가치관이 비슷하고 대화가 잘 통하는 사람.",
-            "재물운": "성실함이 최고의 재물 창출 비결입니다.",
-            "재물모으는법": "작은 것부터 아껴 쓰는 습관이 중요합니다.",
-            "체질운": "균형 잡힌 식단으로 면역력을 관리하세요.",
-            "사회운": "원만한 인간관계를 유지하며 신뢰를 쌓습니다.",
-            "성격운": "부드러움 속에 강한 인내심을 품고 있습니다."
-        }
-    };
-
-    function generateAnalysis(name, dayGanJi) {
-        const sections = [
-            "종합 사주 총평", "초년운", "중년운", "말년운", "건강운", "연애운", "결혼운", 
-            "어떤 사람이랑 결혼을 해야하는지", "재물운", "재물모으는법", "체질운", "사회운", "성격운"
-        ];
-
-        // 일주 문자열 추출 (예: "갑(甲)" -> "갑")
-        const stem = dayGanJi.stem.charAt(0);
-        const branch = dayGanJi.branch.charAt(0);
-        const key = stem + branch;
-
-        const data = sajuDatabase[key] || sajuDatabase["default"];
-
-        let html = "";
-        sections.forEach(title => {
-            const content = data[title] || "해당 섹션에 대한 상세 데이터가 준비 중입니다.";
-
-            html += `
-                <div style="margin-bottom: 25px;">
-                    <h4 style="color: #38bdf8; margin-bottom: 10px;">📜 ${title}</h4>
-                    <p style="color: var(--inter-text); line-height: 1.8; font-size: 0.95rem;">${content}</p>
-                </div>
-            `;
-        });
-        return html;
-    }
-
-    function analyzeSaju() {
+    async function analyzeSaju() {
         const name = document.getElementById('userName').value;
         const birthDate = document.getElementById('birthDate').value;
         const time = document.getElementById('birthTime').value;
@@ -406,27 +329,31 @@
             return;
         }
 
-        const dateObj = new Date(birthDate);
-
-        const diffTime = dateObj - referenceDate;
-        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-
-        const dayGanJi = getGanJi(diffDays);
-
-        const year = dateObj.getFullYear();
-        const yearGanJi = getGanJi(year - 1900 + 0); 
-        const monthGanJi = getGanJi(dateObj.getMonth()); 
-
-        document.getElementById('yearPillar').innerText = `${yearGanJi.stem}\n${yearGanJi.branch}`;
-        document.getElementById('monthPillar').innerText = `${monthGanJi.stem}\n${monthGanJi.branch}`;
-        document.getElementById('dayPillar').innerText = `${dayGanJi.stem}\n${dayGanJi.branch}`;
-        document.getElementById('hourPillar').innerText = time !== "모름" ? `${time}` : "미상";
-
-        document.getElementById('resultTitle').innerText = `${name} 님의 사주 풀이`;
-
-        document.getElementById('analysisText').innerHTML = generateAnalysis(name, dayGanJi);
-
+        // 결과 화면 표시 및 로딩 상태
         document.getElementById('resultBox').style.display = 'block';
+        document.getElementById('analysisText').innerHTML = "AI가 사주를 정밀 분석 중입니다. 잠시만 기다려 주세요...";
+
+        try {
+            const response = await fetch('/api/analyze', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, birthDate, time })
+            });
+            
+            const data = await response.json();
+            
+            // 결과 표시 (서버에서 반환된 전체 HTML 또는 텍스트)
+            document.getElementById('analysisText').innerHTML = data.analysis;
+            
+            // Pillar 정보는 실제 API 구조에 맞게 서버에서 받아오거나 여기서 처리
+            document.getElementById('yearPillar').innerText = "-";
+            document.getElementById('monthPillar').innerText = "-";
+            document.getElementById('dayPillar').innerText = "-";
+            document.getElementById('hourPillar').innerText = time;
+
+        } catch (error) {
+            document.getElementById('analysisText').innerHTML = "분석 중 오류가 발생했습니다. 다시 시도해 주세요.";
+        }
     }
 
 </script>
