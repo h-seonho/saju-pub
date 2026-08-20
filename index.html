@@ -160,12 +160,40 @@
             opacity: 0.9;
         }
 
-        /* 결과 화면 디자인 */
-        .result-box {
-            display: none;
-            margin-top: 25px;
-            padding-top: 25px;
-            border-top: 1px dashed var(--result-border);
+        /* 로딩 스피너 디자인 */
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top: 4px solid #3b82f6;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 카드 UI 디자인 */
+        .analysis-card {
+            background: var(--container-bg);
+            border: 1px solid var(--result-border);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .analysis-title {
+            color: #38bdf8;
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: bold;
         }
 
         .result-title {
@@ -329,9 +357,12 @@
             return;
         }
 
-        // 결과 화면 표시 및 로딩 상태
+        // 결과 박스 로딩 표시
         document.getElementById('resultBox').style.display = 'block';
-        document.getElementById('analysisText').innerHTML = "AI가 사주를 정밀 분석 중입니다. 잠시만 기다려 주세요...";
+        document.getElementById('analysisText').innerHTML = `
+            <div class="spinner"></div>
+            <p style="text-align: center; color: var(--text-color);">AI가 정통 명리학으로 사주를 분석 중입니다...</p>
+        `;
 
         try {
             const response = await fetch('/api/analyze', {
@@ -342,10 +373,22 @@
             
             const data = await response.json();
             
-            // 결과 표시
-            // 마크다운 코드 블록 문자가 포함되어 있을 경우 제거
-            let cleanAnalysis = data.analysis.replace(/```html/g, '').replace(/```/g, '');
-            document.getElementById('analysisText').innerHTML = cleanAnalysis;
+            // AI 응답을 카드 UI로 감싸기 (간단한 파싱)
+            let rawContent = data.analysis.replace(/```html/g, '').replace(/```/g, '');
+            
+            // 섹션별 아이콘 매핑
+            const iconMap = {
+                "종합 사주 총평": "🔮", "초년운 및 성장기": "🌱", "중년운 (사회적 성취)": "🌳", "말년운 (재물과 안식)": "🍂", 
+                "건강 및 체질 조언": "💪", "연애운": "❤️", "결혼운": "💍", "직장 및 사업운 (재물 모으는 비법 포함)": "💼", "재물": "💰"
+            };
+
+            // h4 제목을 카드 UI로 변환
+            let formattedContent = rawContent.replace(/<h4>(.*?)<\/h4>/g, (match, title) => {
+                const icon = iconMap[title] || "💡";
+                return `<div class="analysis-card"><div class="analysis-title"><span>${icon}</span>${title}</div>`;
+            }).replace(/<\/p>/g, '</p></div>');
+            
+            document.getElementById('analysisText').innerHTML = formattedContent;
             
             // Pillar 정보 표시
             document.getElementById('yearPillar').innerText = data.sajuPillar.year;
