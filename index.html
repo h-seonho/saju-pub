@@ -401,6 +401,11 @@
         }
     }
 
+    // 페이지 로드 시 결과창 강제 숨김
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('resultBox').style.display = 'none';
+    });
+
 </script>
 
 </body>
