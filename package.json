@@ -1,1 +1,8 @@
-{"name":"saju-backend","version":"1.0.0","dependencies":{"openai":"^4.104.0"}}
+{
+  "name": "saju-backend",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "openai": "^4.104.0"
+  }
+}
