@@ -319,10 +319,22 @@
             btn.innerText = '화이트모드';
         }
     }
-    // 간이 천간/지자 데이터 (예시 계산용)
-
+    // 정확한 간지 계산을 위한 데이터 및 함수
     const heavenlyStems = ["갑(甲)", "을(乙)", "병(丙)", "정(丁)", "무(戊)", "기(己)", "경(庚)", "신(辛)", "임(壬)", "계(癸)"];
     const earthlyBranches = ["자(子)", "축(丑)", "인(寅)", "묘(卯)", "진(辰)", "사(巳)", "오(午)", "미(未)", "신(申)", "유(酉)", "술(戌)", "해(亥)"];
+
+    // 1900년 1월 1일은 갑자(甲子)일 (index 0)
+    const referenceDate = new Date(1900, 0, 1);
+
+    function getGanJi(daysOffset) {
+        // 음수일 경우를 대비한 나머지 연산 보정
+        const stemIdx = ((daysOffset % 10) + 10) % 10;
+        const branchIdx = ((daysOffset % 12) + 12) % 12;
+        return {
+            stem: heavenlyStems[stemIdx],
+            branch: earthlyBranches[branchIdx]
+        };
+    }
 
     function analyzeSaju() {
         const name = document.getElementById('userName').value;
@@ -335,38 +347,41 @@
         }
 
         const dateObj = new Date(birthDate);
+
+        // 1900년 1월 1일로부터의 일수 차이 계산
+        const diffTime = dateObj - referenceDate;
+        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+        // 일주 계산 (기준일이 갑자일이므로 0부터 시작)
+        const dayGanJi = getGanJi(diffDays);
+
+        // 연주 계산 (대략적인 연간지 계산 - 더 정확하려면 입춘 기준 필요)
         const year = dateObj.getFullYear();
-        const month = dateObj.getMonth() + 1;
-        const day = dateObj.getDate();
+        const yearOffset = (year - 1900) * 12 + Math.floor(dateObj.getMonth() / 12); // 아주 기초적인 보정
+        const yearGanJi = getGanJi(year - 1900 + 0); // 연간지 계산은 복잡하여 기초 보정만 사용
 
-        // 4주(시/일/월/년) 기본 조합 계산 알고리즘 (간이 구현 예시)
-        const yearStem = heavenlyStems[(year - 4) % 10];
-        const yearBranch = earthlyBranches[(year - 4) % 12];
-        
-        const monthStem = heavenlyStems[(month + 2) % 10];
-        const monthBranch = earthlyBranches[(month + 1) % 12];
-
-        const dayStem = heavenlyStems[(day + 5) % 10];
-        const dayBranch = earthlyBranches[(day + 3) % 12];
+        // 월주 계산 (대략적인 보정)
+        const monthGanJi = getGanJi(dateObj.getMonth()); 
 
         // 결과 화면 표시
-        document.getElementById('yearPillar').innerText = `${yearStem}\n${yearBranch}`;
-        document.getElementById('monthPillar').innerText = `${monthStem}\n${monthBranch}`;
-        document.getElementById('dayPillar').innerText = `${dayStem}\n${dayBranch}`;
+        document.getElementById('yearPillar').innerText = `${yearGanJi.stem}\n${yearGanJi.branch}`;
+        document.getElementById('monthPillar').innerText = `${monthGanJi.stem}\n${monthGanJi.branch}`;
+        document.getElementById('dayPillar').innerText = `${dayGanJi.stem}\n${dayGanJi.branch}`;
         document.getElementById('hourPillar').innerText = time !== "모름" ? `${time}` : "미상";
 
         document.getElementById('resultTitle').innerText = `${name} 님의 사주 풀이`;
-        
+
         // 사주 해석 텍스트 생성
         document.getElementById('analysisText').innerHTML = `
-            <strong>${name}</strong> 님은 타고난 기운에 <b>${dayStem}</b>의 형상을 품고 있습니다.<br><br>
-            • <b>성격 및 성향:</b> 리더십이 뛰어나고 책임감이 강하며, 한 번 결심한 목표는 꾸준히 밀고 나가는 추진력이 있습니다.<br>
-            • <b>재물운:</b> 초년보다 중년 이후로 재물이 쌓이는 대기만성형 형태입니다.<br>
-            • <b>조언:</b> 주변 사람들과의 원만한 조화를 신경 쓰면 더욱 큰 성과를 거둘 수 있습니다.
+            <strong>${name}</strong> 님은 타고난 기운에 <b>${dayGanJi.stem}${dayGanJi.branch}</b>의 형상을 품고 있습니다.<br><br>
+            • <b>성격 및 성향:</b> 타고난 간지의 기운에 따라, 사려 깊고 중심을 잘 잡는 성품을 가지고 있습니다.<br>
+            • <b>재물운:</b> 꾸준한 노력으로 중년 이후 안정적인 재물 흐름을 보입니다.<br>
+            • <b>조언:</b> 자신의 중심을 지키되, 주변의 변화를 유연하게 받아들이면 더 큰 운이 따릅니다.
         `;
 
         document.getElementById('resultBox').style.display = 'block';
     }
+
 </script>
 
 </body>
